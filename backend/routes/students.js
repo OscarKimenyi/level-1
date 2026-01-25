@@ -28,44 +28,100 @@ router.get("/:id", (req, res) => {
 
 // POST create a new student
 router.post("/", (req, res) => {
-  const { name, age, course } = req.body;
+  try {
+    // Debug: Log what we're receiving
+    console.log("POST Request Body:", req.body);
 
-  // Basic validation
-  if (!name || !age || !course) {
-    return res
-      .status(400)
-      .json({ error: "Name, age, and course are required" });
+    const { name, age, course } = req.body;
+
+    // Check if body exists
+    if (!req.body) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    // Basic validation
+    if (!name || !age || !course) {
+      return res.status(400).json({
+        error: "Name, age, and course are required",
+        received: req.body,
+      });
+    }
+
+    if (typeof name !== "string") {
+      return res.status(400).json({ error: "Name must be a string" });
+    }
+    if (typeof name !== "string") {
+      return res.status(400).json({ error: "Name must be a string" });
+    }
+
+    const ageNum = parseInt(age);
+    if (isNaN(ageNum) || ageNum < 16 || ageNum > 100) {
+      return res
+        .status(400)
+        .json({ error: "Age must be a number between 16 and 100" });
+    }
+
+    const newStudent = {
+      id: nextId++,
+      name: name.trim(),
+      age: ageNum,
+      course: course.trim(),
+    };
+
+    students.push(newStudent);
+    console.log("Created student:", newStudent);
+    res.status(201).json(newStudent);
+  } catch (error) {
+    console.error("POST Error:", error);
+    res.status(500).json({ error: "Failed to create student" });
   }
-
-  const newStudent = {
-    id: nextId++,
-    name,
-    age: parseInt(age),
-    course,
-  };
-
-  students.push(newStudent);
-  res.status(201).json(newStudent);
 });
 
 // PUT update student
 router.put("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, age, course } = req.body;
+  try {
+    console.log("PUT Request Body:", req.body);
 
-  const studentIndex = students.findIndex((s) => s.id === id);
-  if (studentIndex !== -1) {
-    return res.status(400).json({ error: "Student not found" });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid student ID" });
+    }
+
+    const { name, age, course } = req.body;
+
+    const studentIndex = students.findIndex((s) => s.id === id);
+
+    if (studentIndex === -1) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    // Validation for updates
+    if (name && typeof name !== "string") {
+      return res.status(400).json({ error: "Name must be a string" });
+    }
+
+    if (age) {
+      const ageNum = parseInt(age);
+      if (isNaN(ageNum) || ageNum < 16 || ageNum > 100) {
+        return res
+          .status(400)
+          .json({ error: "Age must be a number between 16 and 100" });
+      }
+    }
+    const updatedStudent = {
+      ...students[studentIndex],
+      name: name ? name.trim() : students[studentIndex].name,
+      age: age ? parseInt(age) : students[studentIndex].age,
+      course: course ? course.trim() : students[studentIndex].course,
+    };
+
+    students[studentIndex] = updatedStudent;
+    console.log("Updated student:", updatedStudent);
+    res.json(updatedStudent);
+  } catch (error) {
+    console.error("PUT Error:", error);
+    res.status(500).json({ error: "Failed to update student" });
   }
-
-  // Update student details
-  students[studentIndex] = {
-    ...students[studentIndex],
-    name: name || students[studentIndex].name,
-    age: age ? parseInt(age) : students[studentIndex].age,
-    course: course || students[studentIndex].course,
-  };
-  res.json(students[studentIndex]);
 });
 
 // DELETE a student
