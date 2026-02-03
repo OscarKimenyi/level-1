@@ -1,6 +1,6 @@
 # 🎓 Student Management Webpage 
 
-A **Student Management Webpage** built using **HTML**, **CSS**, **JavaScript**, **Node.js**, and **Express**.
+A **Student Management Webpage** built using **HTML**, **CSS**, **JavaScript**, **Node.js** and **Express**.
 It is a static webpage that fetches API data using JavaScript and perform CRUD operations, Display fetched data dynamically on the webpage. And uses basic CSS for styling and responsiveness.
 ---
 
